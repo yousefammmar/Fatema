@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fatema Alahmad | Portfolio</title>
+    <link rel="icon" type="image/png" href="fatema_logo.png">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: rgba(139, 92, 246, 0.05);
+            --surface-hover: rgba(139, 92, 246, 0.1);
+            --primary: #8B5CF6;
+            --primary-light: #A78BFA;
+            --primary-lighter: #C4B5FD;
+            --text: #e0e0ff;
+            --text-soft: #b8b8d8;
+            --accent: #DDD6FE;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+            z-index: 1000;
+        }
+
+        header h2 {
+            color: var(--primary-light);
+            font-size: 1.5rem;
+        }
+
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 10px;
+            z-index: 1001;
+        }
+
+        .sidebar-toggle span {
+            width: 25px;
+            height: 3px;
+            background: var(--primary-light);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(8px, 8px);
+        }
+
+        .sidebar-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .sidebar-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100vh;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 100px 30px 30px;
+            transition: left 0.3s ease;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar a {
+            color: var(--text-soft);
+            text-decoration: none;
+            padding: 15px 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .sidebar a:hover {
+            background: var(--surface-hover);
+            color: var(--primary-light);
+            border-color: rgba(139, 92, 246, 0.3);
+            transform: translateX(5px);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 998;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 100px 40px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: var(--primary-light);
+            position: relative;
+            display: inline-block;
+        }
+
+        section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-lighter));
+            border-radius: 2px;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .avatar {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 1;
+            margin: 0 auto;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid var(--primary);
+            box-shadow: 0 0 40px rgba(139, 92, 246, 0.4);
+        }
+
+        .hero-text small {
+            color: var(--primary-lighter);
+            font-size: 1.2rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .hero-text h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-text h3 {
+            font-size: 1.8rem;
+            color: var(--primary-lighter);
+            margin-bottom: 20px;
+            min-height: 50px;
+        }
+
+        .hero-text p {
+            color: var(--text-soft);
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 35px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(139, 92, 246, 0.5);
+        }
+
+        .socials {
+            display: flex;
+            gap: 15px;
+        }
+
+        .socials a {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--surface);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 50%;
+            color: var(--primary-light);
+            transition: all 0.3s ease;
+        }
+
+        .socials a:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        .socials svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            background: var(--surface-hover);
+            border-color: rgba(139, 92, 246, 0.5);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
+        }
+
+        .card h3 {
+            color: var(--primary-light);
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .card p {
+            color: var(--text-soft);
+            font-size: 0.95rem;
+        }
+
+        .language-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .language-card {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .language-card:hover {
+            background: var(--surface-hover);
+            border-color: rgba(139, 92, 246, 0.5);
+            transform: translateY(-3px);
+        }
+
+        .language-card h4 {
+            color: var(--primary-light);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .language-card .level {
+            color: var(--accent);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            background: rgba(10, 10, 15, 0.8);
+            border-top: 1px solid rgba(139, 92, 246, 0.2);
+            color: var(--text-soft);
+        }
+
+        @media (max-width: 900px) {
+            .hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+                padding-top: 140px;
+            }
+
+            .avatar {
+                order: -1;
+            }
+
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+
+            .buttons {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <img src="fatema_logo.png" alt="Fatema Logo"
+            style="height: 50px; object-fit: contain; filter: drop-shadow(0 0 5px rgba(139, 92, 246, 0.5));">
+    </header>
+
+    <aside id="sidebar" class="sidebar">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#education">Education</a>
+        <a href="#skills">Skills</a>
+        <a href="#projects">Projects</a>
+        <a href="#languages">Languages</a>
+        <a href="#contact">Contact</a>
+    </aside>
+
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <section class="hero" id="home">
+        <div class="avatar">
+            <img src="Fatema.jpeg" alt="Fatema Alahmad">
+        </div>
+
+        <div class="hero-text">
+            <small>Hi, I'm</small>
+            <h1>Fatema Alahmad</h1>
+            <h3><span id="typing-text">Computer Science Student</span></h3>
+            <p>
+                Motivated second-year Computer Science student at Princess Sumaya University for Technology with strong
+                analytical and problem-solving skills. Experienced in programming practice and academic training, with
+                solid performance in coursework and practical projects (GPA 87.8). Interested in applying computational
+                thinking and technical skills in a challenging learning or professional environment.
+            </p>
+
+            <div class="buttons">
+                <!-- Assuming CV is local or we need a real link. User provided absolute path. 
+                     I will use a placeholder relative path or keep it blank if unknown. 
+                     The previous one was CV-Fatema...docx. -->
+                <a class="btn" href="CV-Fatema Alahmad (1).pdf" download>Download CV</a>
+
+                <div class="socials">
+                    <a href="mailto:fa00alahmad19@gmail.com" aria-label="Email">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                            <path
+                                d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555ZM0 4.697v7.104l5.803-3.558L0 4.697ZM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757Zm3.436-.586L16 11.801V4.697l-5.803 3.546Z">
+                            </path>
+                        </svg>
+                    </a>
+                    <a href="https://github.com/ffaa19" target="_blank" aria-label="GitHub">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                            <path
+                                d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="about">
+        <h2>About Me</h2>
+        <p>
+            I am a Computer Science student at Princess Sumaya University for Technology with a passion for programming
+            and problem-solving. My academic journey has equipped me with strong foundations in data structures,
+            object-oriented programming, and discrete mathematics. I actively participate in ACM competitive programming
+            training and university clubs, constantly seeking to enhance my technical skills and computational thinking.
+            I'm driven by curiosity and the desire to apply my knowledge to real-world challenges.
+        </p>
+    </section>
+
+    <section id="education">
+        <h2>Education</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>Bachelor's in Computer Science</h3>
+                <p style="margin-top: 10px; color: var(--primary-lighter); font-weight: 600;">Princess Sumaya University
+                    for Technology</p>
+                <p style="margin-top: 5px; color: var(--text-soft); font-size: 0.9em;">2024 - Present | GPA: 87.8%</p>
+                <p style="margin-top: 15px;">
+                    <strong>Relevant Coursework:</strong> Data Structures, Object Oriented Programming, Discrete
+                    Mathematics, Linear Algebra
+                </p>
+                <p style="margin-top: 10px;">
+                    <strong>Activities:</strong> ACM competitive programming training, university clubs
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>High School Diploma</h3>
+                <p style="margin-top: 10px; color: var(--primary-lighter); font-weight: 600;">Alhassad Private School
+                </p>
+                <p style="margin-top: 5px; color: var(--text-soft); font-size: 0.9em;">2023 | Grade: 97.15%</p>
+                <p style="margin-top: 15px;">
+                    Graduated with excellence, demonstrating strong academic performance and dedication to learning.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="skills">
+        <h2>Technical Skills</h2>
+        <div class="grid">
+            <div class="card">C</div>
+            <div class="card">C++</div>
+            <div class="card">Assembly (8086)</div>
+            <div class="card">HTML</div>
+            <div class="card">CSS</div>
+            <div class="card">JavaScript</div>
+            <div class="card">React</div>
+            <div class="card">Data Structures</div>
+            <div class="card">Object-Oriented Programming</div>
+            <div class="card">Problem Solving</div>
+        </div>
+    </section>
+
+    <section id="projects">
+        <h2>Projects</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>1D Collision Simulation</h3>
+                <p style="margin-top: 10px; color: var(--primary-lighter); font-size: 0.9em;">C++ &amp; SFML</p>
+                <p style="margin-top: 15px;">
+                    Developed a physics-based simulation for elastic collisions, replicating real-life motion using
+                    object-oriented programming principles. The project demonstrates understanding of physics concepts
+                    and their implementation in code.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Snake Game</h3>
+                <p style="margin-top: 10px; color: var(--primary-lighter); font-size: 0.9em;">Assembly Language (8086)
+                </p>
+                <p style="margin-top: 15px;">
+                    Implemented the classic Snake game in assembly language, utilizing interrupts for input/output
+                    handling
+                    and applying low-level logical control for game mechanics. This project showcases proficiency in
+                    low-level programming and system architecture.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>To-Do List Web Application</h3>
+                <p style="margin-top: 10px; color: var(--primary-lighter); font-size: 0.9em;">HTML & CSS & JavaScript
+                </p>
+                <p style="margin-top: 15px;">
+                    Developed a responsive web application using HTML, CSS, and JavaScript that allows users to add,
+                    delete, and manage daily tasks through an interactive interface.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="languages">
+        <h2>Languages</h2>
+        <div class="language-grid">
+            <div class="language-card">
+                <h4>Arabic</h4>
+                <p class="level">Native</p>
+                <p style="margin-top: 10px; color: var(--text-soft); font-size: 0.9em;">Mother Tongue</p>
+            </div>
+
+            <div class="language-card">
+                <h4>English</h4>
+                <p class="level">B2</p>
+                <p style="margin-top: 10px; color: var(--text-soft); font-size: 0.9em;">Independent User</p>
+            </div>
+
+            <div class="language-card">
+                <h4>Spanish</h4>
+                <p class="level">B1</p>
+                <p style="margin-top: 10px; color: var(--text-soft); font-size: 0.9em;">Independent User</p>
+            </div>
+
+            <div class="language-card">
+                <h4>Chinese</h4>
+                <p class="level">A1</p>
+                <p style="margin-top: 10px; color: var(--text-soft); font-size: 0.9em;">Beginner</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact">
+        <h2>Contact</h2>
+        <p>Email: fa00alahmad19@gmail.com</p>
+        <p>Phone: +962 782 490 752</p>
+        <p>Location: Amman, Jordan</p>
+    </section>
+
+    <footer>
+        © 2026 Fatema Alahmad — Portfolio Website
+    </footer>
+
+    <script>
+        var info = ["Computer Science Student", "Problem Solver", "Web Developer", "Competitive Programmer"];
+        var index = 0;
+        var speed = 100;
+        var pause = 2000;
+        var deletingSpeed = 50;
+        let charIndex = 0;
+        let isDeleting = false;
+
+        function type() {
+            const name = info[index];
+            const t_elem = document.getElementById('typing-text');
+
+            if (!t_elem) return;
+
+            if (isDeleting) {
+                t_elem.textContent = name.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                t_elem.textContent = name.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            let typeSpeedVar = isDeleting ? deletingSpeed : speed;
+
+            if (!isDeleting && charIndex === name.length) {
+                typeSpeedVar = pause;
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                index = (index + 1) % info.length;
+                typeSpeedVar = 500;
+            }
+
+            setTimeout(type, typeSpeedVar);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            type();
+
+            const toggle = document.getElementById('sidebar-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const links = document.querySelectorAll('.sidebar a');
+
+            const toggleMenu = () => {
+                toggle.classList.toggle('active');
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            };
+
+            toggle.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
+
+            links.forEach(link => {
+                link.addEventListener('click', () => {
+                    toggleMenu();
+                });
+            });
+        });
+    </script>
+    <canvas id="bg-canvas" width="756" height="603"></canvas>
+    <script src="fatema_bg.js"></script>
+</body>
+
+</html>
